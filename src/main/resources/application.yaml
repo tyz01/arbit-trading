@@ -1,2 +1,15 @@
 server:
   port: ${PORT:8080}
+
+spring:
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database: postgresql
+  datasource:
+    url: jdbc:postgresql://ec2-52-215-68-14.eu-west-1.compute.amazonaws.com:5432/d10m2fm4ro7879
+    username: uwbuzacnshmmka
+    password: 5792e87aa7054a3cd7feb2583d112b8844f1182186d2213ce18e625068a39420
+
+logging:
+  level: debug
