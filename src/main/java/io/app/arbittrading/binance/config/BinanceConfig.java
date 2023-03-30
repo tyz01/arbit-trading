@@ -9,12 +9,11 @@ import org.springframework.context.annotation.Configuration;
 @Getter
 @Setter
 public class BinanceConfig {
-
     @Value("${binance.apiKey}")
-    private String apiKey;
+    protected String apiKey;
     @Value("${binance.secretKey}")
-    private String secretKey;
+    protected String secretKey;
     @Value("${binance.apiBaseUrl}")
-    private String apiBaseUrl;
+    protected String apiBaseUrl;
 
 }
