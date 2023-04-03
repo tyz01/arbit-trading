@@ -1,4 +1,5 @@
 package io.app.arbittrading.binance.bean;
 
-public class BinanceBean {
+import java.math.BigDecimal;
+public record BinanceBean(String symbol, BigDecimal price) {
 }
