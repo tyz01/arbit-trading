@@ -1,5 +1,14 @@
 package io.app.arbittrading.binance.bean;
 
+import lombok.*;
+
 import java.math.BigDecimal;
-public record BinanceBean(String symbol, BigDecimal price) {
+
+@Data
+@AllArgsConstructor
+@NoArgsConstructor
+public class BinanceBean {
+    private String symbol;
+    private BigDecimal price;
 }
+
