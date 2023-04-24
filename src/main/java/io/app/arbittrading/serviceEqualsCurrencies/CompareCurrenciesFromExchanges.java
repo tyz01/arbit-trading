@@ -25,7 +25,7 @@ public class CompareCurrenciesFromExchanges {
     private final BinanceService binanceService;
     private final CurrencyService currencyExchangeService;
     private final TelegramSender telegramSender;
-    private static int countSession = 1;
+    public static int countSession = 1;
     private static final int PERCENTAGE_VALUE = 6;
     private List<Valuta> valutas;
     private static final Set<String> allNamesCurrencies = new HashSet<>();

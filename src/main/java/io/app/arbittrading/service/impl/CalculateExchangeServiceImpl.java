@@ -10,6 +10,7 @@ import io.app.arbittrading.currency.service.CurrencyService;
 import io.app.arbittrading.service.CalculateExchangeService;
 import io.app.arbittrading.telegram.TelegramSender;
 import lombok.AllArgsConstructor;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
@@ -20,7 +21,10 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import static io.app.arbittrading.serviceEqualsCurrencies.CompareCurrenciesFromExchanges.countSession;
+
 @Service
+@Log4j2
 @AllArgsConstructor
 public class CalculateExchangeServiceImpl implements CalculateExchangeService {
     private final ExecutorService service = Executors.newFixedThreadPool(10);
@@ -31,6 +35,7 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
     private static final String diffProc = "0.05";
 
     private Map<String, Map<String, BigDecimal>> initExchange() {
+        log.info("START INIT DATA");
         final var dataFromCex = CexBean.getDataFromCex(cexService.getCexData().getData());
         final var dataFromBinance = BinanceBean.getDataFromBinance(binanceService.getBinanceData());
         final var dataFromCurrency = CurrencyBean.getDataFromCurrency(currencyExchangeService.getCurrencyData());
@@ -40,6 +45,7 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
         allExchanges.put("Cex", dataFromCex);
         allExchanges.put("Binance", dataFromBinance);
         allExchanges.put("Currency", dataFromCurrency);
+        log.info("FINISH INIT DATA");
         return allExchanges;
     }
 
@@ -55,11 +61,15 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
         for (String currencyName : allCurrencyNames) {
             allCurrency.putAll(prepareAllCurrency(currencyName, exchangesMap));
         }
-
-        service.execute(() ->
-                allCurrencyNames.parallelStream()
-                        .forEach(x -> calculate(allCurrency.get(x)))
-        );
+        log.info("SEND EVENT TO THREAD POOL");
+        service.execute(() -> {
+            log.info("START FIND PAIR");
+            allCurrencyNames.parallelStream()
+                    .forEach(x -> calculate(allCurrency.get(x)));
+            log.info("FINISH FIND PAIR");
+        });
+        log.info("SEND SUCCESS");
+        incrementAndLogSessionCount();
     }
 
     private Map<String, List<CurrencyInfoBean>> prepareAllCurrency(String currencyName,
@@ -109,5 +119,11 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
                 max.getCurrencyPrice().toString(),
                 min.getExchangeName(),
                 min.getCurrencyPrice().toString());
+    }
+
+    private void incrementAndLogSessionCount() {
+        telegramSender.sendMessage("session: " + countSession);
+        log.info("session: " + countSession);
+        countSession++;
     }
 }
