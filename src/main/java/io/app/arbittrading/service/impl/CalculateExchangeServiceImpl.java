@@ -64,8 +64,7 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
         log.info("SEND EVENT TO THREAD POOL");
         service.execute(() -> {
             log.info("START FIND PAIR");
-            allCurrencyNames.parallelStream()
-                    .forEach(x -> calculate(allCurrency.get(x)));
+            allCurrencyNames.parallelStream().forEach(x -> calculate(allCurrency.get(x)));
             incrementAndLogSessionCount();
             log.info("FINISH FIND PAIR");
         });
