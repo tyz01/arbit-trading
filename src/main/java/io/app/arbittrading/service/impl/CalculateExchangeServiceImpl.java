@@ -66,10 +66,10 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
             log.info("START FIND PAIR");
             allCurrencyNames.parallelStream()
                     .forEach(x -> calculate(allCurrency.get(x)));
+            incrementAndLogSessionCount();
             log.info("FINISH FIND PAIR");
         });
         log.info("SEND SUCCESS");
-        incrementAndLogSessionCount();
     }
 
     private Map<String, List<CurrencyInfoBean>> prepareAllCurrency(String currencyName,
