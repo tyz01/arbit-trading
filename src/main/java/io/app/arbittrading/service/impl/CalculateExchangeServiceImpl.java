@@ -17,10 +17,7 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -61,15 +58,19 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
                 .flatMap(map -> map.keySet().stream())
                 .collect(Collectors.toSet());
 
-        final Map<String, List<CurrencyInfoBean>> allCurrency = new HashMap<>();
-        for (String currencyName : allCurrencyNames) {
-            allCurrency.putAll(prepareAllCurrency(currencyName, exchangesMap));
-        }
+        final var allCurrency = allCurrencyNames.parallelStream()
+                .map(currencyName -> prepareAllCurrency(currencyName, exchangesMap))
+                .flatMap(map -> map.entrySet().stream())
+                .collect(Collectors.groupingBy(Map.Entry::getKey,
+                        Collectors.mapping(Map.Entry::getValue, Collectors.toList()))
+                );
 
         log.info("SEND EVENT TO THREAD POOL");
         service.execute(() -> {
             log.info("START FIND PAIR");
-            allCurrencyNames.parallelStream().forEach(x -> calculate(allCurrency.get(x)));
+            allCurrency.values().parallelStream()
+                    .flatMap(List::stream)
+                    .forEach(this::calculate);
             incrementAndLogSessionCount();
             log.info("FINISH FIND PAIR");
         });
