@@ -96,7 +96,8 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
             BigDecimal diff = maxPrice.subtract(minPrice)
                     .divide(minPrice, BigDecimal.ROUND_HALF_UP);
             if (diff.compareTo(new BigDecimal(diffProc)) >= 0) {
-                telegramSender.sendMessage(prepareMessage(maxBean, minBean));
+                final var message = prepareMessage(maxBean, minBean);
+                service.execute(() -> telegramSender.sendMessage(message));
             }
         }
     }
