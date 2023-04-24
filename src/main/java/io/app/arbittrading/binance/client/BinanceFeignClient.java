@@ -9,6 +9,5 @@ import java.util.List;
 @FeignClient(name = "binanceFeignClient", url = "${binance.apiBaseUrl}")
 public interface BinanceFeignClient {
     @GetMapping("/api/v3/ticker/price")
-    List<BinanceBean> getTickerPrices();
-
+    List<BinanceBean> getBinanceData();
 }
