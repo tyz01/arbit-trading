@@ -61,6 +61,7 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
         for (String currencyName : allCurrencyNames) {
             allCurrency.putAll(prepareAllCurrency(currencyName, exchangesMap));
         }
+
         log.info("SEND EVENT TO THREAD POOL");
         service.execute(() -> {
             log.info("START FIND PAIR");
