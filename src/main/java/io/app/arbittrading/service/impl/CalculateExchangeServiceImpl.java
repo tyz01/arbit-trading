@@ -17,7 +17,10 @@ import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
-import java.util.*;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -75,13 +78,12 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
 
     private Map<String, List<CurrencyInfoBean>> prepareAllCurrency(String currencyName,
                                                                    Map<String, Map<String, BigDecimal>> exchanges) {
-        final List<CurrencyInfoBean> testBeans = new ArrayList<>();
-        final Map<String, List<CurrencyInfoBean>> result = new HashMap<>();
-        for (Map.Entry<String, Map<String, BigDecimal>> entry : exchanges.entrySet()) {
-            testBeans.add(new CurrencyInfoBean(entry.getKey(), currencyName, entry.getValue().get(currencyName)));
-        }
-        result.put(currencyName, testBeans);
-        return result;
+        return exchanges.entrySet().parallelStream()
+                .filter(Objects::nonNull)
+                .flatMap(entry -> entry.getValue().entrySet().stream()
+                        .filter(currencyEntry -> currencyEntry.getKey().equals(currencyName))
+                        .map(currencyEntry -> new CurrencyInfoBean(entry.getKey(), currencyName, currencyEntry.getValue())))
+                .collect(Collectors.groupingBy(CurrencyInfoBean::getCurrencyName));
     }
 
     @Async
