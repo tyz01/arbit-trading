@@ -16,6 +16,7 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -103,8 +104,7 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
         }
 
         if (Objects.nonNull(minPrice) && Objects.nonNull(maxPrice)) {
-            BigDecimal diff = maxPrice.subtract(minPrice)
-                    .divide(minPrice, BigDecimal.ROUND_HALF_UP);
+            BigDecimal diff = maxPrice.subtract(minPrice).divide(minPrice, RoundingMode.HALF_UP);
             if (diff.compareTo(new BigDecimal(diffProc)) >= 0) {
                 final var message = prepareMessage(maxBean, minBean);
                 service.execute(() -> telegramSender.sendMessage(message));
