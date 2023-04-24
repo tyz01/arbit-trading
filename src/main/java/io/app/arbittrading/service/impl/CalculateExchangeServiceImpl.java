@@ -89,15 +89,15 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
 
     @Async
     protected void calculate(List<CurrencyInfoBean> currencies) {
-        Optional<CurrencyInfoBean> minBean = currencies.stream()
+        final var minBean = currencies.stream()
                 .min(Comparator.comparing(CurrencyInfoBean::getCurrencyPrice));
-        Optional<CurrencyInfoBean> maxBean = currencies.stream()
+        final var maxBean = currencies.stream()
                 .max(Comparator.comparing(CurrencyInfoBean::getCurrencyPrice));
 
         if (minBean.isPresent() && maxBean.isPresent()) {
-            BigDecimal minPrice = minBean.get().getCurrencyPrice();
-            BigDecimal maxPrice = maxBean.get().getCurrencyPrice();
-            BigDecimal diff = maxPrice.subtract(minPrice).divide(minPrice, RoundingMode.HALF_UP);
+            final var minPrice = minBean.get().getCurrencyPrice();
+            final var maxPrice = maxBean.get().getCurrencyPrice();
+            final var diff = maxPrice.subtract(minPrice).divide(minPrice, RoundingMode.HALF_UP);
             if (diff.compareTo(new BigDecimal(diffProc)) >= 0) {
                 final var message = prepareMessage(maxBean.get(), minBean.get());
                 service.execute(() -> telegramSender.sendMessage(message));
