@@ -5,6 +5,9 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.math.BigDecimal;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -28,6 +31,14 @@ public class CurrencyBean {
     public CurrencyBean(String symbol, BigDecimal lastPrice){
         this.symbol = symbol;
         this.lastPrice = lastPrice;
+    }
+
+    public static Map<String, BigDecimal> getDataFromCurrency(List<CurrencyBean> currencyExchangeList) {
+        Map<String, BigDecimal> currencyExchangePrices = new HashMap<>();
+        for (CurrencyBean currencyExchangeData : currencyExchangeList) {
+            currencyExchangePrices.put(currencyExchangeData.getSymbol(), currencyExchangeData.getLastPrice());
+        }
+        return currencyExchangePrices;
     }
 
 }
