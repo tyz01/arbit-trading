@@ -89,27 +89,17 @@ public class CalculateExchangeServiceImpl implements CalculateExchangeService {
 
     @Async
     protected void calculate(List<CurrencyInfoBean> currencies) {
-        BigDecimal minPrice = null;
-        BigDecimal maxPrice = null;
-        CurrencyInfoBean minBean = null;
-        CurrencyInfoBean maxBean = null;
+        Optional<CurrencyInfoBean> minBean = currencies.stream()
+                .min(Comparator.comparing(CurrencyInfoBean::getCurrencyPrice));
+        Optional<CurrencyInfoBean> maxBean = currencies.stream()
+                .max(Comparator.comparing(CurrencyInfoBean::getCurrencyPrice));
 
-        for (CurrencyInfoBean bean : currencies) {
-            BigDecimal price = bean.getCurrencyPrice();
-            if (Objects.isNull(minPrice) || price.compareTo(minPrice) < 0) {
-                minPrice = price;
-                minBean = bean;
-            }
-            if (Objects.isNull(maxPrice) || price.compareTo(maxPrice) > 0) {
-                maxPrice = price;
-                maxBean = bean;
-            }
-        }
-
-        if (Objects.nonNull(minPrice) && Objects.nonNull(maxPrice)) {
+        if (minBean.isPresent() && maxBean.isPresent()) {
+            BigDecimal minPrice = minBean.get().getCurrencyPrice();
+            BigDecimal maxPrice = maxBean.get().getCurrencyPrice();
             BigDecimal diff = maxPrice.subtract(minPrice).divide(minPrice, RoundingMode.HALF_UP);
             if (diff.compareTo(new BigDecimal(diffProc)) >= 0) {
-                final var message = prepareMessage(maxBean, minBean);
+                final var message = prepareMessage(maxBean.get(), minBean.get());
                 service.execute(() -> telegramSender.sendMessage(message));
             }
         }
