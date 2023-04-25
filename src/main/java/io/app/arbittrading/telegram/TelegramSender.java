@@ -13,7 +13,7 @@ public class TelegramSender {
         this.restTemplate = restTemplate;
         this.telegramConfig = telegramConfig;
     }
-    public void sendMessage(String message) {
+    public final void sendMessage(String message) {
         String url = String.format("https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s",
                 telegramConfig.getTelegramBotToken(), telegramConfig.getTelegramChatId(), message);
         restTemplate.getForObject(url, String.class);
